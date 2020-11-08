@@ -3,7 +3,7 @@
  * @license MIT
  */
 
-import { ICharSizeService } from 'browser/services/Services';
+import { ICharSizeService, IRenderService } from 'browser/services/Services';
 import { IBufferService, ICoreService, IOptionsService } from 'common/services/Services';
 
 interface IPosition {
@@ -41,7 +41,8 @@ export class CompositionHelper {
     @IBufferService private readonly _bufferService: IBufferService,
     @IOptionsService private readonly _optionsService: IOptionsService,
     @ICharSizeService private readonly _charSizeService: ICharSizeService,
-    @ICoreService private readonly _coreService: ICoreService
+    @ICoreService private readonly _coreService: ICoreService,
+    @IRenderService private readonly _renderService: IRenderService
   ) {
     this._isComposing = false;
     this._isSendingComposition = false;
@@ -194,21 +195,33 @@ export class CompositionHelper {
     }
 
     if (this._bufferService.buffer.isCursorInViewport) {
-      const cellHeight = Math.ceil(this._charSizeService.height * this._optionsService.options.lineHeight);
-      const cursorTop = this._bufferService.buffer.y * cellHeight;
-      const cursorLeft = this._bufferService.buffer.x * this._charSizeService.width;
+      const cursorY = this._bufferService.buffer.ybase + this._bufferService.buffer.y;
+      const viewportRelativeCursorY = cursorY - this._bufferService.buffer.ydisp;
+      const cursorX = Math.min(this._bufferService.buffer.x, this._bufferService.cols - 1);
 
-      this._compositionView.style.left = cursorLeft + 'px';
-      this._compositionView.style.top = cursorTop + 'px';
-      this._compositionView.style.height = cellHeight + 'px';
-      this._compositionView.style.lineHeight = cellHeight + 'px';
+      const cellHeight = Math.ceil(this._charSizeService.height * this._optionsService.options.lineHeight);
+      const cellHeightNew = this._renderService!.dimensions.actualCellHeight;
+      console.log('cellHeight', cellHeight, ', cellHeightNew',cellHeightNew);
+
+      const cursorTop = this._bufferService.buffer.y * cellHeight;
+      const cursorTopNew = viewportRelativeCursorY * this._renderService!.dimensions.actualCellHeight;
+      console.log('cursorTop', cursorTop, ', cursorTopNew',cursorTopNew);
+
+      const cursorLeft = this._bufferService.buffer.x * this._charSizeService.width;
+      const cursorLeftNew = cursorX * this._renderService!.dimensions.actualCellWidth;
+      console.log('cursorLeft', cursorLeft, ', cursorLeftNew',cursorLeftNew);
+
+      this._compositionView.style.left = cursorLeftNew + 'px';
+      this._compositionView.style.top = cursorTopNew + 'px';
+      this._compositionView.style.height = cellHeightNew + 'px';
+      this._compositionView.style.lineHeight = cellHeightNew + 'px';
       this._compositionView.style.fontFamily = this._optionsService.options.fontFamily;
       this._compositionView.style.fontSize = this._optionsService.options.fontSize + 'px';
       // Sync the textarea to the exact position of the composition view so the IME knows where the
       // text is.
       const compositionViewBounds = this._compositionView.getBoundingClientRect();
-      this._textarea.style.left = cursorLeft + 'px';
-      this._textarea.style.top = cursorTop + 'px';
+      this._textarea.style.left = cursorLeftNew + 'px';
+      this._textarea.style.top = cursorTopNew + 'px';
       this._textarea.style.width = compositionViewBounds.width + 'px';
       this._textarea.style.height = compositionViewBounds.height + 'px';
       this._textarea.style.lineHeight = compositionViewBounds.height + 'px';

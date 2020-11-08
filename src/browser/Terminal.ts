@@ -439,14 +439,6 @@ export class Terminal extends CoreTerminal implements ITerminal {
     this._charSizeService = this._instantiationService.createInstance(CharSizeService, this._document, this._helperContainer);
     this._instantiationService.setService(ICharSizeService, this._charSizeService);
 
-    this._compositionView = document.createElement('div');
-    this._compositionView.classList.add('composition-view');
-    this._compositionHelper = this._instantiationService.createInstance(CompositionHelper, this.textarea, this._compositionView);
-    this._helperContainer.appendChild(this._compositionView);
-
-    // Performance: Add viewport and helper elements from the fragment
-    this.element.appendChild(fragment);
-
     this._theme = this.options.theme || this._theme;
     this._colorManager = new ColorManager(document, this.options.allowTransparency);
     this.register(this.optionsService.onOptionChange(e => this._colorManager!.onOptionsChange(e)));
@@ -457,6 +449,14 @@ export class Terminal extends CoreTerminal implements ITerminal {
     this._instantiationService.setService(IRenderService, this._renderService);
     this.register(this._renderService.onRenderedBufferChange(e => this._onRender.fire(e)));
     this.onResize(e => this._renderService!.resize(e.cols, e.rows));
+
+    this._compositionView = document.createElement('div');
+    this._compositionView.classList.add('composition-view');
+    this._compositionHelper = this._instantiationService.createInstance(CompositionHelper, this.textarea, this._compositionView);
+    this._helperContainer.appendChild(this._compositionView);
+
+    // Performance: Add viewport and helper elements from the fragment
+    this.element.appendChild(fragment);
 
     this._soundService = this._instantiationService.createInstance(SoundService);
     this._instantiationService.setService(ISoundService, this._soundService);

@@ -308,11 +308,11 @@ export class Terminal extends CoreTerminal implements ITerminal {
 
     // Sync the textarea to the exact position of the composition view so the IME knows where the
     // text is.
-    this.textarea.style.left = cursorLeft + 'px';
-    this.textarea.style.top = cursorTop + 'px';
-    this.textarea.style.width = cellWidth + 'px';
-    this.textarea.style.height = cellHeight + 'px';
-    this.textarea.style.lineHeight = cellHeight + 'px';
+    this.textarea.style.left = cursorLeftNew + 'px';
+    this.textarea.style.top = cursorTopNew + 'px';
+    this.textarea.style.width = cellWidthNew + 'px';
+    this.textarea.style.height = cellHeightNew + 'px';
+    this.textarea.style.lineHeight = cellHeightNew + 'px';
     this.textarea.style.zIndex = '-5';
   }
 

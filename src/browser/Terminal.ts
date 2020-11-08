@@ -285,16 +285,32 @@ export class Terminal extends CoreTerminal implements ITerminal {
     if (!this.textarea || !this.buffer.isCursorInViewport || this._compositionHelper!.isComposing) {
       return;
     }
+    const cursorY = this.buffer.ybase + this.buffer.y;
+    const viewportRelativeCursorY = cursorY - this.buffer.ydisp;
+    const cursorX = Math.min(this.buffer.x, this.cols - 1);
 
     const cellHeight = Math.ceil(this._charSizeService!.height * this.optionsService.options.lineHeight);
-    const cursorTop = this._bufferService.buffer.y * cellHeight;
-    const cursorLeft = this._bufferService.buffer.x * this._charSizeService!.width;
+    const cellHeightNew = this._renderService!.dimensions.actualCellHeight;
+    console.log('cellHeight', cellHeight, ', cellHeightNew',cellHeightNew);
+
+    const cursorTop = this.buffer.y * cellHeight;
+    const cursorTopNew = viewportRelativeCursorY * this._renderService!.dimensions.actualCellHeight;
+    console.log('cursorTop', cursorTop, ', cursorTopNew',cursorTopNew);
+
+    const cellWidth = this._charSizeService!.width;
+    const width = this.buffer.lines.get(cursorY)!.getWidth(cursorX);
+    const cellWidthNew = this._renderService!.dimensions.actualCellWidth * width;
+    console.log('cellWidth', cellWidth, ', cellWidthNew',cellWidthNew);
+
+    const cursorLeft = this.buffer.x * this._charSizeService!.width;
+    const cursorLeftNew = cursorX * this._renderService!.dimensions.actualCellWidth;
+    console.log('cursorLeft', cursorLeft, ', cursorLeftNew',cursorLeftNew);
 
     // Sync the textarea to the exact position of the composition view so the IME knows where the
     // text is.
     this.textarea.style.left = cursorLeft + 'px';
     this.textarea.style.top = cursorTop + 'px';
-    this.textarea.style.width = this._charSizeService!.width + 'px';
+    this.textarea.style.width = cellWidth + 'px';
     this.textarea.style.height = cellHeight + 'px';
     this.textarea.style.lineHeight = cellHeight + 'px';
     this.textarea.style.zIndex = '-5';

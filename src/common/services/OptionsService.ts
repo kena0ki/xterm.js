@@ -33,7 +33,7 @@ export const DEFAULT_OPTIONS: ITerminalOptions = Object.freeze({
   lineHeight: 1.0,
   linkTooltipHoverDuration: 500,
   letterSpacing: 0,
-  logLevel: 'info',
+  logLevel: 'debug',
   scrollback: 1000,
   scrollSensitivity: 1,
   screenReaderMode: false,

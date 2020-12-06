@@ -474,6 +474,7 @@ export class EscapeSequenceParser extends Disposable implements IEscapeSequenceP
     let collect = this._collect;
     const params = this._params;
     const table: Uint8Array = this._transitions.table;
+    console.trace(data);
 
     // process input string
     for (let i = 0; i < length; ++i) {

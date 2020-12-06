@@ -86,6 +86,10 @@ export class TextRenderLayer extends BaseRenderLayer {
         let isJoined = false;
         let lastCharX = x;
 
+        // if (x < 5) {
+        //   console.log(x, cell.getChars(), cell.isCombined(), JSON.stringify(cell));
+        // }
+
         // The character to the left is a wide character, drawing is owned by
         // the char at x-1
         if (cell.getWidth() === 0) {

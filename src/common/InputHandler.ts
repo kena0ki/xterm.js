@@ -548,6 +548,19 @@ export class InputHandler extends Disposable implements IInputHandler {
         }
         continue;
       }
+      // if (!chWidth) {
+      //   if (1 < buffer.x && !bufferRow.getWidth(buffer.x - 1)) {
+      //     // found empty cell after fullwidth, need to go 2 cells back
+      //     // it is save to step 2 cells back here
+      //     // since an empty cell is only set by fullwidth chars
+      //     bufferRow.addCodepointToCell(buffer.x - 2, code);
+      //   } else if (0 < buffer.x) {
+      //     bufferRow.addCodepointToCell(buffer.x - 1, code);
+      //   } else {
+      //     // just skip leading zero width charcters
+      //   }
+      //   continue;
+      // }
 
       // goto next line if ch would overflow
       // NOTE: To avoid costly width checks here,

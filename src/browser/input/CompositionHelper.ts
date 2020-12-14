@@ -53,9 +53,12 @@ export class CompositionHelper {
    */
   public compositionstart(): void {
     this._isComposing = true;
-    this._compositionPosition.start = this._textarea.value.length + this.diff.length;
+    this._compositionPosition.start = this._textarea.value.length; // + this.diff.length;
     this._compositionView.textContent = '';
-    this.diff = '';
+    // console.log(this._compositionPosition.start);
+    // console.log(this.diff);
+    this.diffLength = 0;
+    console.log(this.diffLength);
     this._compositionView.classList.add('active');
   }
 
@@ -148,6 +151,8 @@ export class CompositionHelper {
         if (this._isSendingComposition) {
           this._isSendingComposition = false;
           let input;
+          currentCompositionPosition.start += this.diffLength;
+          console.log(this.diffLength);
           if (this._isComposing) {
             // Use the end position to get the string if a new composition has started.
             input = this._textarea.value.substring(currentCompositionPosition.start, currentCompositionPosition.end);
@@ -168,7 +173,7 @@ export class CompositionHelper {
     }
   }
 
-  private diff: string = '';
+  private diffLength: number = 0;
   /**
    * Apply any changes made to the textarea after the current event chain is allowed to complete.
    * This should be called when not currently composing but a keydown event with the "composition
@@ -181,12 +186,15 @@ export class CompositionHelper {
       // Ignore if a composition has started since the timeout
       if (!this._isComposing) {
         const newValue = this._textarea.value;
-        this.diff = newValue.replace(oldValue, '');
-        if (this.diff.length > 0) {
+        const diff = newValue.replace(oldValue, '');
+        // console.log(this.diff);
+        if (diff.length > 0) {
+          this.diffLength = diff.length;
+          console.log(this.diffLength);
           // this._compositionPosition.start += diff.length;
-          this._textarea.value += this.diff;
+          // this._textarea.value += this.diff;
           // console.log(this._compositionPosition.start);
-          this._coreService.triggerDataEvent(this.diff, true);
+          this._coreService.triggerDataEvent(diff, true);
         }
       }
     }, 0);

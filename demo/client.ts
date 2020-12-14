@@ -210,7 +210,7 @@ function createTerminal(): void {
         pid = processId;
         socketURL += processId;
         socket = new WebSocket(socketURL);
-        socket.onopen = runRealTerminal;
+        socket.onopen = runFakeTerminal;
         socket.onclose = runFakeTerminal;
         socket.onerror = runFakeTerminal;
       });
@@ -242,22 +242,25 @@ function runFakeTerminal(): void {
   term.writeln('Type some keys and commands to play around.');
   term.writeln('');
   term.prompt();
+term.onData(data => {
+  console.trace(data);
+  term.write(data);
+});
+  // term.onKey((e: { key: string, domEvent: KeyboardEvent }) => {
+  //   const ev = e.domEvent;
+  //   const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
 
-  term.onKey((e: { key: string, domEvent: KeyboardEvent }) => {
-    const ev = e.domEvent;
-    const printable = !ev.altKey && !ev.ctrlKey && !ev.metaKey;
-
-    if (ev.keyCode === 13) {
-      term.prompt();
-    } else if (ev.keyCode === 8) {
-     // Do not delete the prompt
-      if (term._core.buffer.x > 2) {
-        term.write('\b \b');
-      }
-    } else if (printable) {
-      term.write(e.key);
-    }
-  });
+  //   if (ev.keyCode === 13) {
+  //     term.prompt();
+  //   } else if (ev.keyCode === 8) {
+  //    // Do not delete the prompt
+  //     if (term._core.buffer.x > 2) {
+  //       term.write('\b \b');
+  //     }
+  //   } else if (printable) {
+  //     term.write(e.key);
+  //   }
+  // });
 }
 
 function initOptions(term: TerminalType): void {

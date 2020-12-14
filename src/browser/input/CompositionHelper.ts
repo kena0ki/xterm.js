@@ -53,8 +53,9 @@ export class CompositionHelper {
    */
   public compositionstart(): void {
     this._isComposing = true;
-    this._compositionPosition.start = this._textarea.value.length;
+    this._compositionPosition.start = this._textarea.value.length + this.diff.length;
     this._compositionView.textContent = '';
+    this.diff = '';
     this._compositionView.classList.add('active');
   }
 
@@ -156,12 +157,18 @@ export class CompositionHelper {
             // (eg. 2) after a composition character.
             input = this._textarea.value.substring(currentCompositionPosition.start);
           }
-          this._coreService.triggerDataEvent(input, true);
+          console.log(this._textarea.value);
+          console.log(JSON.stringify(currentCompositionPosition));
+          console.log(JSON.stringify(this._compositionPosition));
+          if (input.length > 0) {
+            this._coreService.triggerDataEvent(input, true);
+          }
         }
       }, 0);
     }
   }
 
+  private diff: string = '';
   /**
    * Apply any changes made to the textarea after the current event chain is allowed to complete.
    * This should be called when not currently composing but a keydown event with the "composition
@@ -174,9 +181,12 @@ export class CompositionHelper {
       // Ignore if a composition has started since the timeout
       if (!this._isComposing) {
         const newValue = this._textarea.value;
-        const diff = newValue.replace(oldValue, '');
-        if (diff.length > 0) {
-          this._coreService.triggerDataEvent(diff, true);
+        this.diff = newValue.replace(oldValue, '');
+        if (this.diff.length > 0) {
+          // this._compositionPosition.start += diff.length;
+          this._textarea.value += this.diff;
+          // console.log(this._compositionPosition.start);
+          this._coreService.triggerDataEvent(this.diff, true);
         }
       }
     }, 0);

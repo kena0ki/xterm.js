@@ -35,6 +35,11 @@ export class CompositionHelper {
    */
   private _isSendingComposition: boolean;
 
+  /**
+   * Data already sent due to keydown event.
+   */
+  private _dataAlreadySent: string;
+
   constructor(
     private readonly _textarea: HTMLTextAreaElement,
     private readonly _compositionView: HTMLElement,
@@ -46,6 +51,7 @@ export class CompositionHelper {
     this._isComposing = false;
     this._isSendingComposition = false;
     this._compositionPosition = { start: 0, end: 0 };
+    this._dataAlreadySent = '';
   }
 
   /**
@@ -53,12 +59,9 @@ export class CompositionHelper {
    */
   public compositionstart(): void {
     this._isComposing = true;
-    this._compositionPosition.start = this._textarea.value.length; // + this.diff.length;
+    this._compositionPosition.start = this._textarea.value.length;
     this._compositionView.textContent = '';
-    // console.log(this._compositionPosition.start);
-    // console.log(this.diff);
-    this.diffLength = 0;
-    console.log(this.diffLength);
+    this._dataAlreadySent = '';
     this._compositionView.classList.add('active');
   }
 
@@ -151,8 +154,9 @@ export class CompositionHelper {
         if (this._isSendingComposition) {
           this._isSendingComposition = false;
           let input;
-          currentCompositionPosition.start += this.diffLength;
-          console.log(this.diffLength);
+          // Add length of data already sent due to keydown event,
+          // otherwise input characters can be duplicated. (Issue #3191)
+          currentCompositionPosition.start += this._dataAlreadySent.length;
           if (this._isComposing) {
             // Use the end position to get the string if a new composition has started.
             input = this._textarea.value.substring(currentCompositionPosition.start, currentCompositionPosition.end);
@@ -162,9 +166,6 @@ export class CompositionHelper {
             // (eg. 2) after a composition character.
             input = this._textarea.value.substring(currentCompositionPosition.start);
           }
-          console.log(this._textarea.value);
-          console.log(JSON.stringify(currentCompositionPosition));
-          console.log(JSON.stringify(this._compositionPosition));
           if (input.length > 0) {
             this._coreService.triggerDataEvent(input, true);
           }
@@ -173,7 +174,6 @@ export class CompositionHelper {
     }
   }
 
-  private diffLength: number = 0;
   /**
    * Apply any changes made to the textarea after the current event chain is allowed to complete.
    * This should be called when not currently composing but a keydown event with the "composition
@@ -187,13 +187,9 @@ export class CompositionHelper {
       if (!this._isComposing) {
         const newValue = this._textarea.value;
         const diff = newValue.replace(oldValue, '');
-        // console.log(this.diff);
         if (diff.length > 0) {
-          this.diffLength = diff.length;
-          console.log(this.diffLength);
-          // this._compositionPosition.start += diff.length;
-          // this._textarea.value += this.diff;
-          // console.log(this._compositionPosition.start);
+          this._dataAlreadySent = diff;
+          console.log(this._dataAlreadySent, this._dataAlreadySent.length);
           this._coreService.triggerDataEvent(diff, true);
         }
       }

@@ -210,7 +210,7 @@ function createTerminal(): void {
         pid = processId;
         socketURL += processId;
         socket = new WebSocket(socketURL);
-        socket.onopen = runFakeTerminal;
+        socket.onopen = runRealTerminal;
         socket.onclose = runFakeTerminal;
         socket.onerror = runFakeTerminal;
       });
